@@ -5,22 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Road Intersection Simulator</title>
     <style>
-        canvas {
-            border: 1px solid #000;
-            margin: 20px;
-        }
-        body {
+        .container {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid #000;
+        }
+        .debug-panel {
+            margin-left: 20px;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+        }
+        .debug-panel h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .control-group input {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+        .control-group .value-display {
+            font-size: 0.9em;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <canvas id="roadCanvas" width="800" height="800"></canvas>
-    <script src="road.js"></script>
+    <div class="container">
+        <canvas id="roadCanvas" width="800" height="800"></canvas>
+        <div class="debug-panel">
+            <h2>Traffic Light Controls</h2>
+            <div class="control-group">
+                <label for="greenDuration">Green Light Duration (ms)</label>
+                <input type="range" id="greenDuration" min="5000" max="60000" step="1000">
+                <div class="value-display">Current: <span id="greenValue"></span> ms</div>
+            </div>
+            <div class="control-group">
+                <label for="yellowDuration">Yellow Light Duration (ms)</label>
+                <input type="range" id="yellowDuration" min="1000" max="10000" step="500">
+                <div class="value-display">Current: <span id="yellowValue"></span> ms</div>
+            </div>
+            <div class="control-group">
+                <label for="redDuration">Red Light Duration (ms)</label>
+                <div class="value-display">(Calculated from Green + Yellow)</div>
+                <div class="value-display">Current: <span id="redValue"></span> ms</div>
+            </div>
+            <div class="control-group">
+                <label>Current States:</label>
+                <div>North-South: <span id="nsState">-</span></div>
+                <div>East-West: <span id="ewState">-</span></div>
+            </div>
+            <div class="control-group">
+                <label for="vehicleSpawnRate">Vehicle Spawn Rate</label>
+                <input type="range" id="vehicleSpawnRate" min="0" max="0.02" step="0.001" value="0.01">
+                <div class="value-display">Current: <span id="spawnRateValue"></span></div>
+            </div>
+            <div class="control-group">
+                <label for="vehicleSpeed">Vehicle Speed</label>
+                <input type="range" id="vehicleSpeed" min="1" max="5" step="0.5" value="2">
+                <div class="value-display">Current: <span id="speedValue"></span></div>
+            </div>
+            <div class="control-group">
+                <label for="maxVehicles">Maximum Vehicles</label>
+                <input type="range" id="maxVehicles" min="10" max="50" step="5" value="30">
+                <div class="value-display">Current: <span id="maxVehiclesValue"></span></div>
+            </div>
+            <div class="control-group">
+                <label>Statistics:</label>
+                <div>Total Vehicles: <span id="vehicleCount">0</span></div>
+                <div>Waiting Vehicles: <span id="waitingCount">0</span></div>
+                <div class="stats-detail">
+                    <div>North-South: <span id="nsCount">0</span></div>
+                    <div>East-West: <span id="ewCount">0</span></div>
+                    <div>In Intersection: <span id="intersectionCount">0</span></div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Debug Output:</label>
+                <textarea id="debugOutput" rows="20" cols="80" readonly 
+                    style="font-family: monospace; 
+                           font-size: 12px; 
+                           background: #f0f0f0;
+                           white-space: pre;
+                           overflow-y: scroll;
+                           user-select: text;
+                           -webkit-user-select: text;"></textarea>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import { TrafficSystem } from './js/TrafficSystem.js';
+
+        const canvas = document.getElementById('roadCanvas');
+        const trafficSystem = new TrafficSystem(canvas);
+
+        function animate() {
+            trafficSystem.update();
+            trafficSystem.draw();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
 </body>
 </html>
